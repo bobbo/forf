@@ -45,7 +45,7 @@ fn expansion_value<'a>(expr: &str, path: &'a str) -> &'a str {
     }
 }
 
-fn build_command(path: &str, args: &Args) -> String {
+fn build_command(path: &str, args: &Args) -> (String, Vec<String>) {
     let mut command = args.command.clone();
 
     for expr in vec!(":f") {
@@ -54,7 +54,9 @@ fn build_command(path: &str, args: &Args) -> String {
         }
     }
 
-    command
+    let splits: Vec<&str> = command.split(' ').collect();
+    let args = splits[1..].iter().map(|s| s.to_string()).collect();
+    (String::from(splits[0]), args)
 }
 
 fn main() {
@@ -63,8 +65,8 @@ fn main() {
     for entry in glob(&args.glob).expect("Failed to read glob pattern") {
         match entry {
             Ok(path) => {
-                let command = build_command(path.to_str().unwrap(), &args);
-                println!("{}", command);
+                let (exec, args) = build_command(path.to_str().unwrap(), &args);
+                println!("{}\n", exec);
             },
             Err(e) => panic!(e)
         }
