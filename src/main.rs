@@ -1,7 +1,9 @@
 extern crate getopts;
+extern crate glob;
 
 use getopts::Options;
 use std::env;
+use glob::glob;
 
 struct Args {
     glob: String,
@@ -36,6 +38,35 @@ fn invalid_args(opts: &Options, args: &Vec<String>) {
     panic!(usage);
 }
 
+fn expansion_value<'a>(expr: &str, path: &'a str) -> &'a str {
+    match expr {
+        ":f" => path,
+        _ => ""
+    }
+}
+
+fn build_command(path: &str, args: &Args) -> String {
+    let mut command = args.command.clone();
+
+    for expr in vec!(":f") {
+        if command.contains(expr) {
+            command = command.replace(expr, expansion_value(expr, path));
+        }
+    }
+
+    command
+}
+
 fn main() {
     let args = parse_args();
+
+    for entry in glob(&args.glob).expect("Failed to read glob pattern") {
+        match entry {
+            Ok(path) => {
+                let command = build_command(path.to_str().unwrap(), &args);
+                println!("{}", command);
+            },
+            Err(e) => panic!(e)
+        }
+    }
 }

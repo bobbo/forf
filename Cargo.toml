@@ -5,3 +5,4 @@ authors = ["David Futcher <david.futcher@skyscanner.net>"]
 
 [dependencies]
 getopts = "*"
+glob = "*"
