@@ -3,12 +3,12 @@ extern crate getopts;
 use getopts::Options;
 use std::env;
 
-fn invalid_args(opts: &Options, args: &Vec<String>) {
-    let usage = opts.short_usage(&args[0]);
-    panic!(usage);
+struct Args {
+    glob: String,
+    command: String
 }
 
-fn main() {
+fn parse_args() -> Args {
     let args: Vec<String> = env::args().collect();
     let opts = Options::new();
 
@@ -21,11 +21,21 @@ fn main() {
         invalid_args(&opts, &args);
     }
 
-    let glob_input = &matches.free[0];
+    let glob_input = matches.free[0].clone();
     let command = matches.free[1..].join(" ");
 
     if glob_input.is_empty() || command.is_empty() {
         invalid_args(&opts, &args);
     }
 
+    Args{ glob: glob_input, command: command }
+}
+
+fn invalid_args(opts: &Options, args: &Vec<String>) {
+    let usage = opts.short_usage(&args[0]);
+    panic!(usage);
+}
+
+fn main() {
+    let args = parse_args();
 }
