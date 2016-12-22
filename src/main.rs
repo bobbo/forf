@@ -4,6 +4,7 @@ extern crate glob;
 use getopts::Options;
 use std::env;
 use glob::glob;
+use std::process::Command;
 
 struct Args {
     glob: String,
@@ -66,7 +67,11 @@ fn main() {
         match entry {
             Ok(path) => {
                 let (exec, args) = build_command(path.to_str().unwrap(), &args);
-                println!("{}\n", exec);
+
+                Command::new(exec)
+                        .args(args.as_slice())
+                        .status()
+                        .expect("Command failed");
             },
             Err(e) => panic!(e)
         }
